@@ -648,12 +648,6 @@ h2 { font-size: 1.5rem; }
 }
 
 @media (max-width: 640px) {
-  .duel-row {
-    grid-template-columns: 1fr;
-  }
-  .duel-row__vs {
-    justify-self: center;
-  }
   .roster-cards.cols-3,
   .roster-cards.cols-4 {
     grid-template-columns: repeat(2, 1fr);

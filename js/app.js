@@ -312,6 +312,15 @@ function duelRow(playerA, playerB, tagA = "", tagB = "") {
   return row;
 }
 
+// Un duel enregistré peut avoir été formé dans un sens ou dans l'autre
+// (playerA/playerB) selon quelle équipe a initié le choix. Pour l'affichage,
+// on veut toujours votre joueur à gauche et l'adverse à droite.
+function matchDuelRow(match) {
+  const team = match.playerA.side === "team" ? match.playerA : match.playerB;
+  const opp = match.playerA.side === "team" ? match.playerB : match.playerA;
+  return duelRow(team, opp);
+}
+
 function opponentHandSection(label, count) {
   const wrap = el("div", "hand hand--opp");
   wrap.appendChild(el("div", "hand__label", `${label} (${count} restant${count > 1 ? "s" : ""})`));
@@ -406,7 +415,7 @@ function recapSection() {
       list.appendChild(el("h4", "recap-list__module", m.module));
       lastModule = m.module;
     }
-    list.appendChild(duelRow(m.playerA, m.playerB));
+    list.appendChild(matchDuelRow(m));
   });
   wrap.appendChild(list);
   return wrap;
@@ -736,7 +745,7 @@ function renderRecap() {
       list.appendChild(el("h3", "recap-list__module", m.module));
       lastModule = m.module;
     }
-    list.appendChild(duelRow(m.playerA, m.playerB));
+    list.appendChild(matchDuelRow(m));
   });
   wrap.appendChild(list);
 
