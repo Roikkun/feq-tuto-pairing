@@ -7,9 +7,6 @@
   --gold: #c9a227;
   --team: #3b82f6;
   --opp: #ef4444;
-  --imperium: #d4af37;
-  --chaos: #b23a3a;
-  --xenos: #2fa365;
   color-scheme: dark;
 }
 
@@ -61,6 +58,8 @@ body {
 
 .app {
   flex: 1;
+  position: relative;
+  overflow-x: hidden;
 }
 
 .foot-note {
@@ -74,12 +73,39 @@ body {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  animation: fade-in 0.25s ease;
 }
 
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Glissade entre étapes : l'écran entrant glisse depuis la droite pendant
+   que l'écran sortant glisse vers la gauche en s'estompant, superposés le
+   temps de la transition pour éviter tout saut de mise en page. */
+.screen--enter {
+  animation: screen-in 0.26s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.screen--exit {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  animation: screen-out 0.2s ease both;
+  pointer-events: none;
+}
+
+@keyframes screen-in {
+  from { opacity: 0; transform: translateX(28px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes screen-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-28px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen--enter,
+  .screen--exit {
+    animation: none;
+  }
 }
 
 .eyebrow {
@@ -127,6 +153,25 @@ h2 { font-size: 1.5rem; }
   margin-top: 8px;
 }
 
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: var(--border);
+  color: var(--text-dim);
+}
+
+.btn:disabled:hover {
+  background: transparent;
+  color: var(--text-dim);
+}
+
+.divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 4px 0;
+}
+
 /* Choix de taille d'équipe */
 .size-options {
   display: grid;
@@ -153,6 +198,12 @@ h2 { font-size: 1.5rem; }
   transform: translateY(-2px);
 }
 
+.size-option--selected {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+  background: linear-gradient(160deg, var(--bg-panel), #1a1608);
+}
+
 .size-option__number {
   font-family: "Cinzel", serif;
   font-size: 2.2rem;
@@ -171,78 +222,337 @@ h2 { font-size: 1.5rem; }
   color: var(--text-dim);
 }
 
-/* Rosters */
-.roster-grid {
+/* Mise en page générique "contenu principal + colonne latérale" (utilisée
+   par l'étape de choix du Défenseur). */
+.split-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.split-main {
+  display: flex;
+  flex-direction: column;
   gap: 20px;
+  min-width: 0;
 }
 
-.roster-grid--compact .player-card {
-  padding: 10px 12px;
+/* Rosters (empilés : équipe puis adversaire) */
+.roster-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.roster-column {
+.roster-block__title {
+  font-size: 1rem;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border);
+  margin: 0;
+}
+
+.roster-block__title--team { color: var(--team); border-color: var(--team); }
+.roster-block__title--opp { color: var(--opp); border-color: var(--opp); }
+
+.roster-cards {
+  display: grid;
+  gap: 12px;
+}
+
+.roster-cards.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.roster-cards.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* Plateau (colonne de droite) : cartes actuellement en jeu pour le module en
+   cours, qu'elles soient encore secrètes ou déjà révélées. */
+.board {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.board__title {
+  font-size: 1rem;
+}
+
+.board__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.board__group-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.board__slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.board-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1 1 100px;
+  min-width: 0;
+}
+
+.board-slot .card {
+  width: 100%;
+}
+
+.board-placeholder {
+  width: 100%;
+  height: 70px;
+  border-radius: 10px;
+  border: 2px dashed var(--border);
+  background-size: cover;
+  background-position: center;
+  background-color: #101215;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Cinzel", serif;
+  font-size: 1.2rem;
+  color: var(--text-dim);
+}
+
+.board-placeholder--team { border-color: var(--team); }
+.board-placeholder--opp { border-color: var(--opp); }
+
+.board-placeholder--secret {
+  border-style: solid;
+  background-image: url("../assets/card-back.svg");
+}
+
+.board-slot__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.board-slot__label--team { color: var(--team); }
+.board-slot__label--opp { color: var(--opp); }
+
+/* Récapitulatif cumulatif affiché en bas de chaque étape du pairing */
+.recap-inline {
+  margin-top: 12px;
+  padding-top: 20px;
+  border-top: 1px dashed var(--border);
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.roster-column__title {
-  font-size: 1rem;
-  padding-bottom: 6px;
-  border-bottom: 2px solid var(--border);
+.recap-inline__title {
+  font-size: 0.95rem;
+  color: var(--gold);
 }
 
-.roster-column__title--team { color: var(--team); border-color: var(--team); }
-.roster-column__title--opp { color: var(--opp); border-color: var(--opp); }
-
-.player-card {
-  background: var(--bg-panel);
+/* Carte joueur façon jeu de cartes */
+.card {
+  background-color: #fff;
+  background-size: cover;
+  background-position: center;
   border: 1px solid var(--border);
-  border-left: 3px solid var(--border);
-  border-radius: 8px;
-  padding: 12px 14px;
+  border-bottom: 3px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  height: 70px;
+  overflow: hidden;
+}
+
+.card--team { border-bottom-color: var(--team); }
+.card--opp { border-bottom-color: var(--opp); }
+
+.card--clickable {
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card--clickable:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.card--selected {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+.card--locked {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
   position: relative;
 }
 
-.player-card--team { border-left-color: var(--team); }
-.player-card--opp { border-left-color: var(--opp); }
-
-.player-card--clickable {
-  cursor: pointer;
-  transition: border-color 0.15s ease, transform 0.15s ease;
+.card--locked::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: inherit;
 }
 
-.player-card--clickable:hover {
-  border-color: var(--gold);
-  transform: translateY(-1px);
+.confirm-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-.player-card__name {
+.confirm-row .btn {
+  margin-top: 0;
+  flex: 0 0 auto;
+}
+
+.confirm-row__note {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  max-width: 38ch;
+}
+
+.card--facedown {
+  align-items: center;
+  justify-content: center;
+  background-color: #101215;
+  border-left-color: var(--border);
+}
+
+.card__facedown-mark {
+  font-family: "Cinzel", serif;
+  font-size: 1.4rem;
+  color: var(--text-dim);
+}
+
+.card__bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card__faction {
+  font-size: 0.82rem;
   font-weight: 600;
-  margin-bottom: 4px;
+  line-height: 1.25;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.player-card__tag {
-  font-size: 0.7rem;
+.card__position {
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  text-shadow:
+    -1px -1px 2px rgba(0, 0, 0, 0.85),
+    1px -1px 2px rgba(0, 0, 0, 0.85),
+    -1px 1px 2px rgba(0, 0, 0, 0.85),
+    1px 1px 2px rgba(0, 0, 0, 0.85),
+    0 0 5px rgba(0, 0, 0, 0.7);
+}
+
+.card__position--team { color: var(--team); }
+.card__position--opp { color: var(--opp); }
+
+.card__disposition {
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fff;
+  border-radius: 5px;
+  padding: 2px 7px;
+}
+
+.card__tag {
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  font-size: 0.65rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--gold);
-  margin-bottom: 4px;
-}
-
-.badge {
-  display: inline-block;
-  font-size: 0.72rem;
+  color: #14140f;
+  background: var(--gold);
   padding: 2px 8px;
   border-radius: 999px;
-  border: 1px solid currentColor;
+  font-weight: 700;
 }
 
-.badge--imperium { color: var(--imperium); }
-.badge--chaos { color: var(--chaos); }
-.badge--xenos { color: var(--xenos); }
+/* Main persistante (cartes restantes) */
+.hand {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
+}
+
+.hand__label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.hand__cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hand__cards--grid2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.hand__cards .card {
+  flex: 0 0 128px;
+}
+
+.hand--opp .card--facedown {
+  flex: 0 0 60px;
+  min-height: 60px;
+}
+
+/* Carte de rappel (Défenseur adverse) au-dessus des choix possibles */
+.choice-reference {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto 10px;
+}
+
+.choice-reference .hand__label {
+  text-align: center;
+}
+
+.choice-reference .card {
+  width: 100%;
+  height: 92px;
+}
 
 /* Roadmap */
 .roadmap-path {
@@ -254,24 +564,55 @@ h2 { font-size: 1.5rem; }
 .roadmap-step {
   display: flex;
   gap: 14px;
-  align-items: flex-start;
+  align-items: stretch;
   background: var(--bg-panel);
   border: 1px solid var(--border);
   border-radius: 8px;
   padding: 14px 16px;
 }
 
+.roadmap-step__rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
 .roadmap-step__index {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-family: "Cinzel", serif;
-  color: var(--gold);
   font-weight: 700;
-  font-size: 1.1rem;
-  min-width: 24px;
+  font-size: 1rem;
+}
+
+.roadmap-step__line {
+  flex: 1 1 auto;
+  width: 2px;
+  min-height: 8px;
+  background: var(--border);
+  margin: 4px 0 -12px;
+}
+
+.roadmap-step--last .roadmap-step__line {
+  visibility: hidden;
 }
 
 .roadmap-step__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 600;
   margin-bottom: 2px;
+}
+
+.roadmap-step__icon {
+  font-size: 0.95rem;
 }
 
 .roadmap-step__desc {
@@ -279,42 +620,7 @@ h2 { font-size: 1.5rem; }
   font-size: 0.85rem;
 }
 
-/* Progress */
-.progress {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: -4px;
-}
-
-.progress__label {
-  font-size: 0.75rem;
-  color: var(--text-dim);
-  white-space: nowrap;
-}
-
-.progress__track {
-  flex: 1;
-  height: 6px;
-  background: var(--bg-panel);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress__fill {
-  height: 100%;
-  background: var(--gold);
-  transition: width 0.3s ease;
-}
-
 /* Choices */
-.player-pool {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-}
-
 /* Duels */
 .duel-row {
   display: grid;
@@ -342,11 +648,17 @@ h2 { font-size: 1.5rem; }
 }
 
 @media (max-width: 640px) {
-  .roster-grid,
   .duel-row {
     grid-template-columns: 1fr;
   }
   .duel-row__vs {
     justify-self: center;
+  }
+  .roster-cards.cols-3,
+  .roster-cards.cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .split-layout {
+    grid-template-columns: 1fr;
   }
 }
