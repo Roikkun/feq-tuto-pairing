@@ -1,0 +1,352 @@
+:root {
+  --bg: #0b0d10;
+  --bg-panel: #14171c;
+  --border: #262b33;
+  --text: #e8e6df;
+  --text-dim: #9a9fa8;
+  --gold: #c9a227;
+  --team: #3b82f6;
+  --opp: #ef4444;
+  --imperium: #d4af37;
+  --chaos: #b23a3a;
+  --xenos: #2fa365;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 28px 0 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+
+.top-bar__title {
+  font-family: "Cinzel", serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+}
+
+.top-bar__subtitle {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.app {
+  flex: 1;
+}
+
+.foot-note {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  padding-top: 32px;
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: fade-in 0.25s ease;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+h1, h2, h3 {
+  font-family: "Cinzel", serif;
+  margin: 0;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+
+.lead {
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 60ch;
+}
+
+.btn {
+  align-self: flex-start;
+  border: 1px solid var(--gold);
+  background: transparent;
+  color: var(--gold);
+  padding: 12px 22px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn:hover {
+  background: var(--gold);
+  color: #14140f;
+}
+
+.btn--primary {
+  margin-top: 8px;
+}
+
+/* Choix de taille d'équipe */
+.size-options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.size-option {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.size-option:hover {
+  border-color: var(--gold);
+  transform: translateY(-2px);
+}
+
+.size-option__number {
+  font-family: "Cinzel", serif;
+  font-size: 2.2rem;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.size-option__label {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.size-option__modules {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* Rosters */
+.roster-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.roster-grid--compact .player-card {
+  padding: 10px 12px;
+}
+
+.roster-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.roster-column__title {
+  font-size: 1rem;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border);
+}
+
+.roster-column__title--team { color: var(--team); border-color: var(--team); }
+.roster-column__title--opp { color: var(--opp); border-color: var(--opp); }
+
+.player-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  position: relative;
+}
+
+.player-card--team { border-left-color: var(--team); }
+.player-card--opp { border-left-color: var(--opp); }
+
+.player-card--clickable {
+  cursor: pointer;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.player-card--clickable:hover {
+  border-color: var(--gold);
+  transform: translateY(-1px);
+}
+
+.player-card__name {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.player-card__tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.badge--imperium { color: var(--imperium); }
+.badge--chaos { color: var(--chaos); }
+.badge--xenos { color: var(--xenos); }
+
+/* Roadmap */
+.roadmap-path {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.roadmap-step {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.roadmap-step__index {
+  font-family: "Cinzel", serif;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 1.1rem;
+  min-width: 24px;
+}
+
+.roadmap-step__title {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.roadmap-step__desc {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+/* Progress */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: -4px;
+}
+
+.progress__label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.progress__track {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress__fill {
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.3s ease;
+}
+
+/* Choices */
+.player-pool {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+/* Duels */
+.duel-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 14px;
+}
+
+.duel-row__vs {
+  font-family: "Cinzel", serif;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.recap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recap-list__module {
+  margin-top: 14px;
+  font-size: 0.95rem;
+  color: var(--gold);
+}
+
+@media (max-width: 640px) {
+  .roster-grid,
+  .duel-row {
+    grid-template-columns: 1fr;
+  }
+  .duel-row__vs {
+    justify-self: center;
+  }
+}
